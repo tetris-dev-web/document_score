@@ -128,7 +128,13 @@ const UserList = observer(() => {
                   onRowClick={handleGridRowClick}
                   style={{ height: "400px" }}>
                   <GridToolbar>
-                    &nbsp;&nbsp;&nbsp;
+                    <Button
+                      title="Home"
+                      themeColor={"info"}
+                      onClick={() => {history.push('/')}}
+                      >
+                      Home
+                    </Button>
                     <Button
                       title="Add Document"
                       themeColor={"primary"}
@@ -136,6 +142,7 @@ const UserList = observer(() => {
                       >
                       Add Document
                     </Button>
+                    &nbsp;&nbsp;&nbsp;
                     <input
                       type="checkbox"
                       className="k-checkbox k-checkbox-md k-rounded-md"
