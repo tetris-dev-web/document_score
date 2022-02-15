@@ -78,7 +78,6 @@ const UserList = observer(() => {
     setGridClickedRow(event.dataItem);
   }
 
-
   const columnDownload = (props: GridCellProps) => {
     const field = props.field || "";
     const value = props.dataItem[field];
