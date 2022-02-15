@@ -1,49 +1,45 @@
 # react_datagrid_app
-Testing assessment App using React + Datagrid + KendoUI + Fake API
+Solidity Smart Contract, Web3 Application
 
 ### Features
-Insert, Listing, Update, Delete Users using Fake API
+Smart Contract Compile, Test, Deploy (Ropsten Testnet)
+Web3.js + React + Kendo UI
 
 ### Install
 
     npm install
 
-### Quickstart
+### Smart Contract Compile 
+
+    npm run compile
+
+### Smart Contract Test
+
+    npm run test
+
+### Smart Contract Deploy
+
+    npm run deploy
+
+### React Application Start
 
     npm start
 
 ### Technologies
 
+- Solidity
+- Chai
+- Hardhat
+- Ropsten Testnet
 - Typescript
 - React
+- Web3.js
 - Kendo React
-- Material UI
-- MobX
-- formik, Yup
-- Axios
-
-### Pages
-
-- User List (Landing Page) - Kendo UI
-- User Add (Dialog) - Kendo UI
-- User Edit (Page) - Material UI
-
-### API
-
-- Dummy data is stored in json formatted file
-- Web API is fetching data from json file
-- All API access contain >1s delay
-- MobX 6.3.13
 
 ### Kendo UI
 
 - Kendo 5.0.1 under 30-days trial licence
-- Grid, Form, Loader, Datepicker, Dialog, Button ...
-
-### Validation
-
-- Username(required, length, alphanumeric), First Name(required, length), Last Name(required, length), Full Name (length)
-- Username duplicated check
+- Grid, Form, Loader, Datepicker, Dialog, Button, Icon, Layout ...
 
 ### UX
 
