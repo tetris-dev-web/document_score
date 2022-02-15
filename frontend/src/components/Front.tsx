@@ -17,7 +17,7 @@ const Front = () => {
   const initWeb3 = async () => {
     const Web3 = require('web3');
     if (window.ethereum) {
-      window.ethereum.request({method: 'eth_requestAccounts'});
+      await window.ethereum.request({method: 'eth_requestAccounts'});
       window.web3 = new Web3(window.ethereum);
       try {
         window.ethereum.enable();
