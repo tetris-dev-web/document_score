@@ -9,16 +9,24 @@ import { StackLayout } from "@progress/kendo-react-layout";
 import { Grid, GridColumn, GridCellProps, GridToolbar, GridDataStateChangeEvent, GridRowClickEvent } from '@progress/kendo-react-grid';
 import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import { Button, ButtonGroup } from '@progress/kendo-react-buttons';
+import { Icon } from '@progress/kendo-react-common';
+import LoadingScreen from "./LoadingScreen";
+import appGlobalConst from '../config';
 
 import { IUser } from '../interfaces/User';
 import { useStores } from "../use-stores";
+import { NumericTextBoxPropsContext } from "@progress/kendo-react-inputs";
 
 const UserList = observer(() => {
   const { userStore } = useStores();
 
   // Load User list for the first time
   useEffect(() => {
-    if (userStore.users.length == 0) userStore.getUsers().then(refreshUser);
+    setIsLoading(true);
+    userStore.getUsers().then(() => {
+      setIsLoading(false);
+      refreshUser();
+    });
   }, [userStore]);
 
   // Local variables
@@ -51,8 +59,7 @@ const UserList = observer(() => {
   const [gridDataState, setGridDataState] = React.useState<State>(initialState.dataState);
   const [gridClickedRow, setGridClickedRow] = React.useState<any>({});
   const [result, setResult] = React.useState<DataResult>(initialState.result);
-  const [openDeleteDialog, setOpenDeleteDialog] = React.useState<boolean>(false);
-  const [deletingUserId, setDeletingUserId] = React.useState<number>(0);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   // Load User List
   const refreshUser = () => {
@@ -71,37 +78,16 @@ const UserList = observer(() => {
     setGridClickedRow(event.dataItem);
   }
 
-  const handleGoEdit = (item: IUser) => {
-    history.push('/edit/' + item.id);
-  };
 
-  const handleDeleteClick = (item: IUser) => {
-    setOpenDeleteDialog(true);
-    setDeletingUserId(item.id);
-  };
-
-  const handleDeleteConfirm = () => {
-  }
-
-  const columnAction = (props: GridCellProps) => {
+  const columnDownload = (props: GridCellProps) => {
+    const field = props.field || "";
+    const value = props.dataItem[field];
+  
     return (
       <td>
-        <ButtonGroup>
-          <Button
-            fillMode="outline"
-            themeColor={"info"}
-            onClick={() => handleGoEdit(props.dataItem)}
-          >
-            Edit
-          </Button>
-          <Button
-            fillMode="solid"
-            themeColor={"primary"}
-            onClick={() => handleDeleteClick(props.dataItem)}
-          >
-            Delete
-          </Button>
-        </ButtonGroup>
+        {value.map((item:any, i:number) => {
+          return (<a href = {appGlobalConst.ipfsLinkURL + item} target = "new"><Icon name = 'download' ></Icon></a> );
+        })}
       </td>
     );
   }
@@ -131,15 +117,15 @@ const UserList = observer(() => {
                     <Button
                       title="Home"
                       themeColor={"info"}
-                      onClick={() => {history.push('/')}}
-                      >
+                      onClick={() => { history.push('/') }}
+                    >
                       Home
                     </Button>
                     <Button
                       title="Add Document"
                       themeColor={"primary"}
-                      onClick={() => {history.push('/service_provider')}}
-                      >
+                      onClick={() => { history.push('/service_provider') }}
+                    >
                       Add Document
                     </Button>
                     &nbsp;&nbsp;&nbsp;
@@ -184,36 +170,17 @@ const UserList = observer(() => {
                   <GridColumn field="username" title="Username" />
                   <GridColumn field="total_score" title="Total Score" filterable={false} />
                   <GridColumn field="num_document" title="Number of Documents" filterable={false} />
-                  <GridColumn cell={columnAction} filterable={false} />
+                  <GridColumn field="documents" cell={columnDownload} filterable={false} />
                 </Grid>
-                {openDeleteDialog && (
-                  <Dialog title={"Please confirm to delete"} onClose={() => { setOpenDeleteDialog(false) }}>
-                    <p style={{ margin: "25px", textAlign: "center" }}>
-                      Are you sure you want to delete?
-                    </p>
-                    <DialogActionsBar>
-                      <Button
-                        fillMode="outline"
-                        themeColor={"info"}
-                        onClick={() => { setOpenDeleteDialog(false) }}
-                      >
-                        No
-                      </Button>
-                      <Button
-                        themeColor={"primary"}
-                        onClick={handleDeleteConfirm}
-                      >
-                        Yes
-                      </Button>
-                    </DialogActionsBar>
-                  </Dialog>
-                )}
               </div>
               <div className="box toc"></div>
             </StackLayout>
             <div className="box footer"></div>
           </StackLayout>
         </div>
+        {isLoading && (
+          <LoadingScreen />
+        )}
       </div>
     </>
   );

@@ -4,55 +4,73 @@ import axios from '../utils/axios';
 import { IServiceProvider, IUser } from '../interfaces/User';
 import fakeRequest from "../utils/fakeRequest";
 import appGlobalConst from '../config';
-import ContractABI from "../contracts/DocumentScore.json";
+import Web3 from 'web3';
+
+declare var window: any;
 
 export class UserStore {
   users: IUser[];
 
-  constructor () {
+  constructor() {
     makeAutoObservable(this)
 
     this.users = [];
   }
 
   getUsers = async () => {
-    const response = await axios.get('/api/getUsers');
-    this.users = [...response.data.users];
-    return;
+    this.users = new Array<IUser>();
 
-    const Web3 = require('web3');
-    const web3 = new Web3(appGlobalConst.RPCUrl);
-    const address = appGlobalConst.contractAddress;
+    const ContractABI  = require("../contracts/DocumentScore.json");
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    window.web3 = new Web3(window.ethereum);
 
-    const contract = new web3.eth.Contract(ContractABI, address);
-    contract.methods.getUserDocument().call()
-    .then((err:any, result:any) => { 
-      console.log(result);
-      this.users = [...result.users];
+    const Contract = new window.web3.eth.Contract(ContractABI, appGlobalConst.ContractAddress);
+
+    const userList = await Contract.methods.getUserDocuments().call();
+
+    userList.forEach((userItem:any) => {
+      let totalScore:number = 0;
+      let documents:Array<string> = new Array<string>();
+
+      userItem.documents.forEach((documentItem:any) => {
+        totalScore += parseInt(documentItem.score);
+        documents.push(documentItem.id);
+      });
+
+      const user:IUser = {
+        id : 0,
+        username: userItem.userName,
+        total_score: totalScore,
+        num_document: userItem.documents.length,
+        documents: documents
+      };
+
+      this.users.push(user);
     });
   }
-  
+
   addUser = async (user: IServiceProvider) => {
-    console.log(user);
+    const ContractABI  = require("../contracts/DocumentScore.json");
 
-    const Web3 = require('web3');
-    const web3 = new Web3(appGlobalConst.RPCUrl);
-    const address = appGlobalConst.contractAddress;
-    
-    const contract = new web3.eth.Contract(ContractABI, address);
+    const web3 = new Web3(new Web3.providers.HttpProvider(appGlobalConst.RPCUrl));
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    window.web3 = new Web3(window.ethereum);
 
-    contract.methods.addDocuments(user).send()
-    .on('receipt', function(receipt:any){
+    const contract = new window.web3.eth.Contract(ContractABI, appGlobalConst.ContractAddress);
+    return contract.methods.addDocuments(user.username, user.files).send({from: accounts[0]})
+    .on('receipt', function (receipt: any) {
       console.log(receipt);
       toast.success("New document added", {
         position: toast.POSITION.BOTTOM_CENTER
       });
     })
-    .on('error', function(error:any, receipt:any) {
+    .on('error', function (error: any, receipt: any) {
+      console.log(error);
       toast.error("Error adding user document", {
         position: toast.POSITION.BOTTOM_CENTER
       });
     });
+    return;
   };
 
   updateUser = async (user: IUser) => {
@@ -62,7 +80,7 @@ export class UserStore {
         position: toast.POSITION.BOTTOM_CENTER
       });
       return;
-    } 
+    }
 
     await axios.post('/api/updateUser', user);
 
@@ -76,8 +94,6 @@ export class UserStore {
     toast.success("User updated", {
       position: toast.POSITION.BOTTOM_CENTER
     });
-
-    
   };
 
   getUser = (id: number) => {
@@ -91,7 +107,7 @@ export class UserStore {
 
   deleteUser = async (id: number) => {
     const updatedUsers = this.users.filter(user => user.id !== id);
-    
+
     await fakeRequest(1000);
 
     this.users = updatedUsers;

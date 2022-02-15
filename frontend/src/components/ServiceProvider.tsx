@@ -102,20 +102,17 @@ const ServiceProvider = () => {
     setIsLoading(true);
 
     // Calculate total score
-    let totalScore:number = 0;
+    let files:Array<Array<string|number>> = new Array();
 
-    if (file_1 != "") totalScore += 10;
-    if (file_2 != "") totalScore += 50;
-    if (file_3 != "") totalScore += 30;
+    if (file_1 != "") files.push([file_1, 10]);
+    if (file_2 != "") files.push([file_2, 50]);
+    if (file_3 != "") files.push([file_3, 30]);
     
     // Save data
     const submitData:IServiceProvider = {
       id: Date.now(),
       username : event.username,
-      file_1 : file_1,
-      file_2 : file_2,
-      file_3 : file_3,
-      total_score : totalScore
+      files : files
     }
 
     // console.log(submitData);
@@ -238,7 +235,6 @@ const ServiceProvider = () => {
       {isLoading && (
         <LoadingScreen />
       )}
-
     </div>
   );
 };

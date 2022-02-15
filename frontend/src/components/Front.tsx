@@ -14,14 +14,27 @@ const Front = () => {
   let history = useHistory();
   const [metamastInstalled, setMetamastInstalled] = React.useState<boolean>(false);
 
-  useEffect(() => {
-    // Check Metamask has been installed
-    if (typeof window.ethereum !== 'undefined') {
+  const initWeb3 = async () => {
+    const Web3 = require('web3');
+    if (window.ethereum) {
+      window.ethereum.request({method: 'eth_requestAccounts'});
+      window.web3 = new Web3(window.ethereum);
+      try {
+        window.ethereum.enable();
+        setMetamastInstalled(true);
+      } catch (err) {
+      }
+    } else if (window.web3) {
       setMetamastInstalled(true);
+      return (window.web3 = new Web3(window.web3.currentProvider));
     } else {
       setMetamastInstalled(false);
     }
-  });  
+  }
+
+  useEffect(() => {
+    initWeb3();
+  });
 
   return (
     <div>
@@ -43,7 +56,7 @@ const Front = () => {
                       type={{ style: "error", icon: true }}
                       closable={false}
                     >
-                      <span>You need to install metamask from <a href = "https://metamask.io/">https://metamask.io/</a>.</span>
+                      <span>You need to install metamask from <a href="https://metamask.io/">https://metamask.io/</a>.</span>
                     </Notification>
                   )}
                   <Button

@@ -1,17 +1,13 @@
 export interface IUser {
   id: number;
   username?: string;
-  firstname?: string;
-  lastname?: string;
-  lastlogin?: number;
-  enabled?: boolean;
+  total_score?: number;
+  num_document?: number;
+  documents: Array<string>;
 }
 
 export interface IServiceProvider {
   id: number;
   username?: string;
-  file_1?: string;
-  file_2?: string;
-  file_3?: string;
-  total_score: number;
+  files?: Array<Array<string|number>>;
 }
